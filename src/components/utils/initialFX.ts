@@ -1,10 +1,9 @@
-import { SplitText } from "gsap-trial/SplitText";
 import gsap from "gsap";
-import { smoother } from "../Navbar";
+import { SplitText } from "./CustomSplitText";
 
 export function initialFX() {
   document.body.style.overflowY = "auto";
-  smoother.paused(false);
+  // Smoother is disabled/native as requested, no longer pausing the scroll 
   document.getElementsByTagName("main")[0].classList.add("main-active");
   gsap.to("body", {
     backgroundColor: "#0a0e17",
@@ -16,7 +15,7 @@ export function initialFX() {
     [".landing-info h3", ".landing-intro h2", ".landing-intro h1"],
     {
       type: "chars,lines",
-      linesClass: "split-line",
+      charsClass: "split-line",
     }
   );
   gsap.fromTo(
@@ -33,7 +32,7 @@ export function initialFX() {
     }
   );
 
-  let TextProps = { type: "chars,lines", linesClass: "split-h2" };
+  let TextProps = { type: "chars,lines", charsClass: "split-h2" };
 
   var landingText2 = new SplitText(".landing-h2-info", TextProps);
   gsap.fromTo(
