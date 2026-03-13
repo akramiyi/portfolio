@@ -9,7 +9,6 @@ import SocialIcons from "./SocialIcons";
 import WhatIDo from "./WhatIDo";
 import Work from "./Work";
 import setSplitText from "./utils/splitText";
-import { useAntiGravity } from "./utils/useAntiGravity";
 
 const TechStack = lazy(() => import("./TechStack"));
 
@@ -19,7 +18,7 @@ const MainContainer = ({ children }: PropsWithChildren) => {
   );
 
   // Activate the easter egg
-  useAntiGravity();
+  // useAntiGravity();
 
   useEffect(() => {
     const resizeHandler = () => {
