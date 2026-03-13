@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import "./styles/Loading.css";
 import { useLoading } from "../context/LoadingProvider";
 
@@ -9,8 +9,9 @@ const Loading = ({ percent }: { percent: number }) => {
   const [loaded, setLoaded] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [clicked, setClicked] = useState(false);
+  const hasRun = useRef(false);
 
-  if (percent >= 100) {
+  if (percent >= 100 && !loaded) {
     setTimeout(() => {
       setLoaded(true);
       setTimeout(() => {
@@ -20,8 +21,9 @@ const Loading = ({ percent }: { percent: number }) => {
   }
 
   useEffect(() => {
-    import("./utils/initialFX").then((module) => {
-      if (isLoaded) {
+    if (isLoaded && !hasRun.current) {
+      hasRun.current = true;
+      import("./utils/initialFX").then((module) => {
         setClicked(true);
         setTimeout(() => {
           if (module.initialFX) {
@@ -33,8 +35,8 @@ const Loading = ({ percent }: { percent: number }) => {
           }
           setIsLoading(false);
         }, 900);
-      }
-    });
+      });
+    }
   }, [isLoaded]);
 
   function handleMouseMove(e: React.MouseEvent<HTMLElement>) {
