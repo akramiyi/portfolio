@@ -1,11 +1,16 @@
 import { useEffect, useRef } from 'react';
 import Matter from 'matter-js';
+import { useLoading } from '../../context/LoadingProvider';
 
 export const useAntiGravity = () => {
     const isFloatingRef = useRef(false);
+    const { isLoading } = useLoading();
 
     useEffect(() => {
-        // Only run after 2000ms inside the browser
+        // Wait until the loading screen is fully removed
+        if (isLoading) return;
+
+        // Only run after 2000ms inside the browser (post-load)
         const timer = setTimeout(() => {
             if (isFloatingRef.current) return;
             isFloatingRef.current = true;
@@ -26,8 +31,9 @@ export const useAntiGravity = () => {
             const runner = Runner.create();
 
             // 2. Discover DOM elements to float
+            // Note: Don't pick up the loading screen components just in case any ghost elements remain
             const elementsToFloat = Array.from(
-                document.querySelectorAll('h1, h2, h3, h4, h5, p, a, button, img, .career-info-box')
+                document.querySelectorAll('h1, h2, h3, h4, h5, p, a:not(.loader-title), button, img, .career-info-box')
             ).filter(el => {
                 // Ensure element has size & is visible
                 const rect = (el as HTMLElement).getBoundingClientRect();
@@ -157,6 +163,6 @@ export const useAntiGravity = () => {
         }, 2000); // Wait 2 seconds before ripping the DOM apart
 
         return () => clearTimeout(timer);
-    }, []);
+    }, [isLoading]);
 };
 

@@ -18,40 +18,68 @@ export class SplitText {
 
     targets.forEach((el) => {
       this.elements.push({ el, html: el.innerHTML });
-      
-      const text = el.innerText;
-      el.innerHTML = '';
-      
-      const words = text.split(' ');
-      words.forEach((word) => {
-        const wordSpan = document.createElement('span');
-        wordSpan.style.display = 'inline-block';
-        wordSpan.className = options?.wordsClass || 'split-word';
+      this.processNode(el, type, options);
+    });
+  }
+
+  private processNode(node: HTMLElement, type: string, options: any) {
+    const childNodes = Array.from(node.childNodes);
+    node.innerHTML = '';
+
+    childNodes.forEach((child) => {
+      if (child.nodeType === Node.TEXT_NODE) {
+        const text = child.textContent || '';
+        const words = text.split(/(\s+)/); // Preserve whitespace segments
+
+        words.forEach((word) => {
+          if (word.trim() === '') {
+            node.appendChild(document.createTextNode(word));
+            return;
+          }
+
+          const wordSpan = document.createElement('span');
+          wordSpan.style.display = 'inline-block';
+          wordSpan.className = options?.wordsClass || 'split-word';
+
+          if (type.includes('chars')) {
+            const chars = word.split('');
+            chars.forEach((char) => {
+              const charSpan = document.createElement('span');
+              charSpan.style.display = 'inline-block';
+              charSpan.innerText = char;
+              charSpan.className = options?.charsClass || 'split-char';
+              wordSpan.appendChild(charSpan);
+              this.chars.push(charSpan);
+            });
+          } else {
+             wordSpan.innerText = word;
+          }
+
+          node.appendChild(wordSpan);
+          this.words.push(wordSpan);
+        });
+      } else if (child.nodeType === Node.ELEMENT_NODE) {
+        // Clone the element node (like <br>, <span>, etc)
+        const elChild = child as HTMLElement;
+        const wrapper = document.createElement(elChild.tagName) as HTMLElement;
         
-        if (type.includes('chars')) {
-          const chars = word.split('');
-          chars.forEach((char) => {
-            const charSpan = document.createElement('span');
-            charSpan.style.display = 'inline-block';
-            charSpan.innerText = char;
-            charSpan.className = options?.charsClass || 'split-char';
-            wordSpan.appendChild(charSpan);
-            this.chars.push(charSpan);
-          });
-        } else {
-           wordSpan.innerText = word;
+        // Copy attributes over
+        Array.from(elChild.attributes).forEach(attr => wrapper.setAttribute(attr.name, attr.value));
+        
+        // Recursively dissect its children
+        this.processNode(elChild, type, options);
+        
+        // Append all the newly wrapped children inside our new wrapper
+        while (elChild.firstChild) {
+          wrapper.appendChild(elChild.firstChild);
         }
         
-        el.appendChild(wordSpan);
-        this.words.push(wordSpan);
-        
-        const space = document.createTextNode(' ');
-        el.appendChild(space);
-      });
-      
-      // Polyfill lines by just dumping words into lines array as a fallback for simple staggers
-      this.lines.push(el);
+        node.appendChild(wrapper);
+      }
     });
+
+    // Fallback for lines staging
+    this.lines.push(node);
   }
 
   revert() {
