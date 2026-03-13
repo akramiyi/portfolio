@@ -5,7 +5,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import Loading from "../components/Loading";
+import Loading, { setProgress } from "../components/Loading";
 
 interface LoadingType {
   isLoading: boolean;
@@ -24,7 +24,18 @@ export const LoadingProvider = ({ children }: PropsWithChildren) => {
     setIsLoading,
     setLoading,
   };
-  useEffect(() => {}, [loading]);
+
+  useEffect(() => {
+    // Start the loading progress bar
+    const progress = setProgress(setLoading);
+    
+    // Auto-complete the loader after it hangs for too long at 92%, or when ready
+    setTimeout(() => {
+       progress.loaded();
+    }, 2000); 
+
+    return () => progress.clear();
+  }, []);
 
   return (
     <LoadingContext.Provider value={value as LoadingType}>
