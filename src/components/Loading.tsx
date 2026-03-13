@@ -25,7 +25,11 @@ const Loading = ({ percent }: { percent: number }) => {
         setClicked(true);
         setTimeout(() => {
           if (module.initialFX) {
-            module.initialFX();
+            try {
+              module.initialFX();
+            } catch (err) {
+              console.error("GSAP InitialFX blocked the load:", err);
+            }
           }
           setIsLoading(false);
         }, 900);

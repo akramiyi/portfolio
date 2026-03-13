@@ -10,8 +10,16 @@ export class SplitText {
       targets = Array.from(document.querySelectorAll(target));
     } else if (target instanceof HTMLElement) {
       targets = [target];
-    } else if (target instanceof NodeList || Array.isArray(target)) {
-      targets = Array.from(target as any);
+    } else if (target instanceof NodeList) {
+      targets = Array.from(target as NodeListOf<HTMLElement>);
+    } else if (Array.isArray(target)) {
+      target.forEach((t) => {
+        if (typeof t === 'string') {
+          targets.push(...Array.from(document.querySelectorAll(t) as NodeListOf<HTMLElement>));
+        } else if (t instanceof HTMLElement) {
+          targets.push(t);
+        }
+      });
     }
 
     const type = (options?.type || 'chars,words,lines');
